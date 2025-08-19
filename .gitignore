@@ -1,0 +1,12 @@
+# Eclipse
+.metadata/
+*.log
+*.tmp
+*.bak
+*.swp
+*.class
+
+# Eclipse plugins e caches
+*.settings/
+*.plugins/
+*.cache/
