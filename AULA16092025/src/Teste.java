@@ -1,4 +1,5 @@
 import java.util.Date;
+import java.time.LocalDate;
 import java.util.Calendar;
 
 public class Teste {
@@ -7,7 +8,7 @@ public class Teste {
 		
 		//calendar é mais atual, já Date está depreciado e provavelmente não existirá nas próximas versões
 		
-		Calendar calendario = Calendar.getInstance();
+		/*Calendar calendario = Calendar.getInstance();
 		
 		calendario.set(Calendar.DAY_OF_MONTH, 24);
 		calendario.set(Calendar.MONTH, 3); // 0 = janeiro , 1 = fevereiro
@@ -18,8 +19,10 @@ public class Teste {
 		
 		Date dt = calendario.getTime();
 		
-		System.out.println("Rodriguinho nasceu em: "+ dt);
-
+		System.out.println("Rodriguinho nasceu em: "+ dt);*/
+		
+		LocalDate dt2 = LocalDate.parse("1978-04-24");
+		System.out.println(dt2.getMonthValue());
 	}
 
 }

@@ -21,7 +21,7 @@ public class Teste2 {
 		
 		//Data definida manualmente
 		LocalDate dt2 = LocalDate.parse("1978-04-24");
-		System.out.println(dt2);
+		System.out.println(dt2.getMonthValue());
 		
 		//Data e hora definida manualmente
 		LocalDateTime time2 = LocalDateTime.parse("1978-04-24T15:27:21");
