@@ -1,0 +1,81 @@
+package testeCharts;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
+public class Estatistica {
+
+    private List<Produto> produtos;
+    private List<Double> valores;
+
+    public Estatistica(List<Produto> produtos) {
+        this.produtos = produtos;
+        this.valores = extrairPrecos(produtos);
+    }
+
+    private List<Double> extrairPrecos(List<Produto> produtos) {
+        List<Double> lista = new ArrayList<>();
+        for (Produto p : produtos) {
+            lista.add(p.getPrice());
+        }
+        return lista;
+    }
+
+    public double calcularMedia() {
+        double soma = 0;
+        for (double v : valores) {
+            soma += v;
+        }
+        return soma / valores.size();
+    }
+
+    public double calcularMediana() {
+        Collections.sort(valores);
+        int tamanho = valores.size();
+
+        if (tamanho % 2 == 0) {
+            return (valores.get(tamanho / 2 - 1) + valores.get(tamanho / 2)) / 2.0;
+        } else {
+            return valores.get(tamanho / 2);
+        }
+    }
+
+    public double calcularVariancia() {
+        double media = calcularMedia();
+        double soma = 0;
+
+        for (double v : valores) {
+            soma += Math.pow(v - media, 2);
+        }
+
+        return soma / valores.size();
+    }
+
+    public double calcularDesvioPadrao() {
+        return Math.sqrt(calcularVariancia());
+    }
+
+    public double calcularModa() {
+        double moda = valores.get(0);
+        int maiorContagem = 0;
+
+        for (double v : valores) {
+            int contagem = 0;
+            for (double x : valores) {
+                if (x == v) contagem++;
+            }
+            if (contagem > maiorContagem) {
+                maiorContagem = contagem;
+                moda = v;
+            }
+        }
+
+        return moda;
+    }
+
+    public List<Double> getValores() {
+        return valores;
+    }
+}

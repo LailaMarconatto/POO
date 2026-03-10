@@ -1,0 +1,122 @@
+package testeCharts;
+
+import java.util.*;
+import java.util.stream.*;
+
+public class Estatistica {
+
+    private List<Produto> produtos;
+
+    public Estatistica(List<Produto> produtos) {
+        this.produtos = produtos;
+    }
+
+    // ===============================
+    // FUNÇÃO BASE
+    // ===============================
+
+    private List<Double> precos(List<Produto> lista) {
+        return lista.stream().map(Produto::getPreco).sorted().toList();
+    }
+
+    private double media(List<Double> valores) {
+        return valores.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+    }
+
+    private double mediana(List<Double> valores) {
+        int n = valores.size();
+        if (n == 0) return 0;
+        if (n % 2 == 0)
+            return (valores.get(n/2 -1) + valores.get(n/2)) / 2;
+        return valores.get(n/2);
+    }
+
+    private double variancia(List<Double> valores) {
+        double m = media(valores);
+        return valores.stream().mapToDouble(v -> Math.pow(v - m,2)).average().orElse(0);
+    }
+
+    private double desvioPadrao(List<Double> valores) {
+        return Math.sqrt(variancia(valores));
+    }
+
+    private double moda(List<Double> valores) {
+        return valores.stream()
+                .collect(Collectors.groupingBy(v -> v, Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(0.0);
+    }
+
+    // ===============================
+    // AGRUPAMENTOS
+    // ===============================
+
+    public Map<String, List<Produto>> agruparPorMarca() {
+        return produtos.stream()
+                .filter(p -> p.getMarca() != null)
+                .collect(Collectors.groupingBy(Produto::getMarca));
+    }
+
+    public Map<String, List<Produto>> agruparPorDDR() {
+        return produtos.stream()
+                .filter(p -> p.getTipoDDR() != null)
+                .collect(Collectors.groupingBy(Produto::getTipoDDR));
+    }
+
+    public Map<String, List<Produto>> agruparPorCategoria() {
+        return produtos.stream()
+                .filter(p -> p.getCategoria() != null)
+                .collect(Collectors.groupingBy(Produto::getCategoria));
+    }
+
+    // ===============================
+    // MÉTRICAS POR GRUPO
+    // ===============================
+
+    public Map<String, Map<String, Double>> metricasPorGrupo(Map<String, List<Produto>> grupo) {
+
+        Map<String, Map<String, Double>> resultado = new HashMap<>();
+
+        for (String chave : grupo.keySet()) {
+
+            List<Double> valores = precos(grupo.get(chave));
+
+            Map<String, Double> m = new HashMap<>();
+            m.put("media", media(valores));
+            m.put("mediana", mediana(valores));
+            m.put("moda", moda(valores));
+            m.put("variancia", variancia(valores));
+            m.put("desvio", desvioPadrao(valores));
+            m.put("min", valores.isEmpty()?0:valores.get(0));
+            m.put("max", valores.isEmpty()?0:valores.get(valores.size()-1));
+
+            resultado.put(chave, m);
+        }
+
+        return resultado;
+    }
+
+    // ===============================
+    // RANKING DE MARCAS
+    // ===============================
+
+    public List<Map.Entry<String, Double>> top10MarcasMaisCaras() {
+        return agruparPorMarca().entrySet().stream()
+                .map(e -> Map.entry(e.getKey(),
+                        media(precos(e.getValue()))))
+                .sorted((a,b) -> Double.compare(b.getValue(), a.getValue()))
+                .limit(10)
+                .toList();
+    }
+
+    public List<Map.Entry<String, Double>> top10MarcasMaisBaratas() {
+        return agruparPorMarca().entrySet().stream()
+                .map(e -> Map.entry(e.getKey(),
+                        media(precos(e.getValue()))))
+                .sorted(Map.Entry.comparingByValue())
+                .limit(10)
+                .toList();
+    }
+}

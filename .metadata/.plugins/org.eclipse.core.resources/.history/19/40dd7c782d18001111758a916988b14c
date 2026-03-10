@@ -1,0 +1,122 @@
+package testeCharts;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class Estatistica {
+
+    private List<Produto> produtos;
+    private List<Double> valoresOrdenados;
+
+    public Estatistica(List<Produto> produtos) {
+        this.produtos = produtos;
+        this.valoresOrdenados = extrairEOrdenarPrecos(produtos);
+    }
+
+    // ==============================
+    // EXTRAÇÃO E ORDENAÇÃO
+    // ==============================
+
+    private List<Double> extrairEOrdenarPrecos(List<Produto> produtos) {
+        List<Double> lista = new ArrayList<>();
+        for (Produto p : produtos) {
+            lista.add(p.getPrice());
+        }
+        Collections.sort(lista);
+        return lista;
+    }
+
+    public List<Double> getValores() {
+        return new ArrayList<>(valoresOrdenados); // evita alteração externa
+    }
+
+    // ==============================
+    // MÉTRICAS BÁSICAS
+    // ==============================
+
+    public double calcularMedia() {
+        double soma = 0;
+        for (double v : valoresOrdenados) {
+            soma += v;
+        }
+        return soma / valoresOrdenados.size();
+    }
+
+    public double calcularMediana() {
+        return calcularMedianaLista(valoresOrdenados);
+    }
+
+    public double getMinimo() {
+        return valoresOrdenados.get(0);
+    }
+
+    public double getMaximo() {
+        return valoresOrdenados.get(valoresOrdenados.size() - 1);
+    }
+
+    // ==============================
+    // VARIÂNCIA E DESVIO
+    // ==============================
+
+    public double calcularVariancia() {
+        double media = calcularMedia();
+        double soma = 0;
+
+        for (double v : valoresOrdenados) {
+            soma += Math.pow(v - media, 2);
+        }
+
+        return soma / valoresOrdenados.size();
+    }
+
+    public double calcularDesvioPadrao() {
+        return Math.sqrt(calcularVariancia());
+    }
+
+    // ==============================
+    // QUARTIS
+    // ==============================
+
+    public double getQ1() {
+        int meio = valoresOrdenados.size() / 2;
+
+        List<Double> metadeInferior;
+
+        if (valoresOrdenados.size() % 2 == 0) {
+            metadeInferior = valoresOrdenados.subList(0, meio);
+        } else {
+            metadeInferior = valoresOrdenados.subList(0, meio);
+        }
+
+        return calcularMedianaLista(metadeInferior);
+    }
+
+    public double getQ3() {
+        int meio = valoresOrdenados.size() / 2;
+
+        List<Double> metadeSuperior;
+
+        if (valoresOrdenados.size() % 2 == 0) {
+            metadeSuperior = valoresOrdenados.subList(meio, valoresOrdenados.size());
+        } else {
+            metadeSuperior = valoresOrdenados.subList(meio + 1, valoresOrdenados.size());
+        }
+
+        return calcularMedianaLista(metadeSuperior);
+    }
+
+    // ==============================
+    // MÉTODO AUXILIAR
+    // ==============================
+
+    private double calcularMedianaLista(List<Double> lista) {
+        int tamanho = lista.size();
+
+        if (tamanho % 2 == 0) {
+            return (lista.get(tamanho / 2 - 1) + lista.get(tamanho / 2)) / 2.0;
+        } else {
+            return lista.get(tamanho / 2);
+        }
+    }
+}

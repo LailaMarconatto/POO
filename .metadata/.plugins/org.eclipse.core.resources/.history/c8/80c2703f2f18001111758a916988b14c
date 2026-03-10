@@ -1,0 +1,139 @@
+package testeCharts;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
+public class HtmlView {
+
+    private List<Estatistica> estatisticas;
+
+    public HtmlView(List<Estatistica> estatisticas) {
+        this.estatisticas = estatisticas;
+    }
+
+    public String gerarRelatorio() {
+
+        Estatistica est = estatisticas.get(0);
+
+        double media = est.calcularMedia();
+        double mediana = est.calcularMediana();
+        double desvio = est.calcularDesvioPadrao();
+        double minimo = est.getMinimo();
+        double maximo = est.getMaximo();
+        double q1 = est.getQ1();
+        double q3 = est.getQ3();
+
+        // ==========================
+        // HISTOGRAMA - valores
+        // ==========================
+
+        StringBuilder histValores = new StringBuilder();
+
+        for (double valor : est.getValores()) {
+            histValores.append("[").append(valor).append("],\n");
+        }
+
+        // ==========================
+        // HTML
+        // ==========================
+
+        String html =
+        "<!DOCTYPE html>\n" +
+        "<html>\n" +
+        "<head>\n" +
+        "<meta charset='UTF-8'>\n" +
+        "<script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>\n" +
+        "<script type='text/javascript'>\n" +
+
+        "google.charts.load('current', {'packages':['corechart']});\n" +
+        "google.charts.setOnLoadCallback(drawCharts);\n" +
+
+        "function drawCharts() {\n" +
+
+        // ================= HISTOGRAMA =================
+        "var histData = google.visualization.arrayToDataTable([\n" +
+        "['Preço'],\n" +
+        histValores.toString() +
+        "]);\n" +
+
+        "var histOptions = {\n" +
+        "title: 'Distribuição de Preços',\n" +
+        "legend: { position: 'none' },\n" +
+        "histogram: { bucketSize: 50 }\n" +
+        "};\n" +
+
+        "var histogram = new google.visualization.Histogram(document.getElementById('histograma'));\n" +
+        "histogram.draw(histData, histOptions);\n" +
+
+        // ================= BOXPLOT =================
+        "var boxData = google.visualization.arrayToDataTable([\n" +
+        "['Preço', 'Min', 'Q1', 'Mediana', 'Q3', 'Max'],\n" +
+        "['RAM', " + minimo + ", " + q1 + ", " + mediana + ", " + q3 + ", " + maximo + "]\n" +
+        "], true);\n" +
+
+        "var boxOptions = {\n" +
+        "title: 'BoxPlot de Preços',\n" +
+        "legend: 'none'\n" +
+        "};\n" +
+
+        "var boxChart = new google.visualization.CandlestickChart(document.getElementById('boxplot'));\n" +
+        "boxChart.draw(boxData, boxOptions);\n" +
+
+        // ================= MÉTRICAS =================
+        "var statsData = google.visualization.arrayToDataTable([\n" +
+        "['Métrica', 'Valor'],\n" +
+        "['Média', " + media + "],\n" +
+        "['Mediana', " + mediana + "],\n" +
+        "['Mínimo', " + minimo + "],\n" +
+        "['Máximo', " + maximo + "]\n" +
+        "]);\n" +
+
+        "var statsOptions = {\n" +
+        "title: 'Resumo Estatístico',\n" +
+        "legend: { position: 'none' }\n" +
+        "};\n" +
+
+        "var statsChart = new google.visualization.ColumnChart(document.getElementById('estatisticas'));\n" +
+        "statsChart.draw(statsData, statsOptions);\n" +
+
+        "}\n" +
+        "</script>\n" +
+        "</head>\n" +
+
+        "<body style='font-family: Arial; margin: 40px;'>\n" +
+
+        "<h1>Análise de Preços - Memórias RAM</h1>\n" +
+
+        "<h3>Resumo Numérico</h3>\n" +
+        "<p><strong>Média:</strong> R$ " + String.format("%.2f", media) + "</p>\n" +
+        "<p><strong>Mediana:</strong> R$ " + String.format("%.2f", mediana) + "</p>\n" +
+        "<p><strong>Desvio Padrão:</strong> R$ " + String.format("%.2f", desvio) + "</p>\n" +
+        "<p><strong>Mínimo:</strong> R$ " + String.format("%.2f", minimo) + "</p>\n" +
+        "<p><strong>Máximo:</strong> R$ " + String.format("%.2f", maximo) + "</p>\n" +
+
+        "<hr>\n" +
+
+        "<div id='histograma' style='width: 100%; height: 500px;'></div>\n" +
+        "<br><br>\n" +
+
+        "<div id='boxplot' style='width: 100%; height: 400px;'></div>\n" +
+        "<br><br>\n" +
+
+        "<div id='estatisticas' style='width: 100%; height: 500px;'></div>\n" +
+
+        "</body>\n" +
+        "</html>";
+
+        return html;
+    }
+
+    public void exportarHtml(String caminho) {
+        try (FileWriter writer = new FileWriter(caminho)) {
+            writer.write(gerarRelatorio());
+            System.out.println("Relatório gerado com sucesso!");
+        } catch (IOException e) {
+            System.out.println("Erro ao gerar HTML: " + e.getMessage());
+        }
+    }
+}

@@ -1,0 +1,340 @@
+package testeCharts;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class HtmlView {
+
+    public static void gerarHtml(List<Produto> produtos) throws IOException {
+
+        StringBuilder html = new StringBuilder();
+
+        html.append("""
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    background-color: #f5f5f5;
+                }
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                    margin-bottom: 30px;
+                }
+                .chart-container {
+                    margin-bottom: 40px;
+                    padding: 20px;
+                    background-color: white;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                }
+                .chart-title {
+                    color: #666;
+                    margin-bottom: 15px;
+                    font-size: 1.2em;
+                    border-bottom: 2px solid #eee;
+                    padding-bottom: 10px;
+                }
+                .charts-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                }
+                .full-width {
+                    grid-column: span 2;
+                }
+            </style>
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+              google.charts.load('current', {'packages':['corechart', 'table']});
+              google.charts.setOnLoadCallback(drawCharts);
+
+              function formatMoney(value) {
+                  return 'R$ ' + value.toFixed(2).replace('.', ',');
+              }
+
+              function drawCharts() {
+        """);
+
+        List<String> ordemDDR = List.of("DDR3", "DDR4", "DDR5");
+
+        // =====================================================
+        // 1️⃣ TABELA DE ESTATÍSTICAS POR TIPO DDR
+        // =====================================================
+        
+        html.append("""
+            // Tabela de Estatísticas por DDR
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn('string', 'Tipo DDR');
+            dataTable.addColumn('number', 'Média (R$)');
+            dataTable.addColumn('number', 'Mediana (R$)');
+            dataTable.addColumn('number', 'Moda (R$)');
+            dataTable.addColumn('number', 'Desvio Padrão (R$)');
+            dataTable.addColumn('number', 'Variância (R$)');
+            dataTable.addColumn('number', 'Quantidade');
+        """);
+
+        StringJoiner joinTableRows = new StringJoiner(",");
+
+        for (String ddr : ordemDDR) {
+            List<Double> precosDDR = produtos.stream()
+                    .filter(p -> ddr.equals(p.getTipoDDR()) && p.getPreco() > 0)
+                    .map(Produto::getPreco)
+                    .collect(Collectors.toList());
+
+            if (!precosDDR.isEmpty()) {
+                double media = Estatistica.media(precosDDR);
+                double mediana = Estatistica.mediana(new ArrayList<>(precosDDR));
+                double moda = Estatistica.moda(precosDDR);
+                double desvio = Estatistica.desvioPadrao(precosDDR);
+                double variancia = Estatistica.variancia(precosDDR);
+                int quantidade = precosDDR.size();
+
+                joinTableRows.add(String.format(Locale.US,
+                    "['%s', {v: %.2f, f: formatMoney(%.2f)}, {v: %.2f, f: formatMoney(%.2f)}, {v: %.2f, f: formatMoney(%.2f)}, {v: %.2f, f: formatMoney(%.2f)}, {v: %.2f, f: formatMoney(%.2f)}, %d]",
+                    ddr, media, media, mediana, mediana, moda, moda, desvio, desvio, variancia, variancia, quantidade
+                ));
+            } else {
+                joinTableRows.add(String.format("['%s', 0, 0, 0, 0, 0, 0, 0]", ddr));
+            }
+        }
+
+        html.append("dataTable.addRows([" + joinTableRows.toString() + "]);");
+
+        html.append("""
+            var table = new google.visualization.Table(document.getElementById('table_stats'));
+            table.draw(dataTable, {
+                showRowNumber: true,
+                width: '100%',
+                height: '100%',
+                alternatingRowStyle: true,
+                page: 'enable',
+                pageSize: 10
+            });
+        """);
+
+        // =====================================================
+        // 2️⃣ GRÁFICO DE COLUNAS COM MÉDIA POR MARCA (COM TOOLTIP)
+        // =====================================================
+
+        Map<String, List<Double>> precosPorMarca = produtos.stream()
+                .collect(Collectors.groupingBy(
+                        Produto::getMarca,
+                        Collectors.mapping(Produto::getPreco, Collectors.toList())
+                ));
+
+        html.append("var dataMarca = new google.visualization.DataTable();");
+        html.append("dataMarca.addColumn('string','Marca');");
+        html.append("dataMarca.addColumn('number','Média (R$)');");
+        html.append("dataMarca.addColumn({type:'string',role:'tooltip', 'p': {'html': true}});");
+
+        StringJoiner joinMarca = new StringJoiner(",");
+
+        for (Map.Entry<String, List<Double>> entry : precosPorMarca.entrySet()) {
+            String marca = entry.getKey();
+            List<Double> lista = entry.getValue();
+
+            double media = Estatistica.media(lista);
+            double mediana = Estatistica.mediana(new ArrayList<>(lista));
+            double moda = Estatistica.moda(lista);
+            double variancia = Estatistica.variancia(lista);
+            double desvio = Estatistica.desvioPadrao(lista);
+            int quantidade = lista.size();
+
+            String tooltip = String.format(Locale.US,
+                "<div style='padding:10px; font-size:12px;'>" +
+                "<b>%s</b><br/>" +
+                "Média: R$ %.2f<br/>" +
+                "Mediana: R$ %.2f<br/>" +
+                "Moda: R$ %.2f<br/>" +
+                "Desvio Padrão: R$ %.2f<br/>" +
+                "Variância: R$ %.2f<br/>" +
+                "Quantidade: %d produtos" +
+                "</div>",
+                marca, media, mediana, moda, desvio, variancia, quantidade
+            );
+
+            joinMarca.add(String.format(Locale.US,
+                "['%s', {v: %.2f, f: formatMoney(%.2f)}, '%s']",
+                marca, media, media, tooltip
+            ));
+        }
+
+        html.append("dataMarca.addRows([" + joinMarca.toString() + "]);");
+
+        html.append("""
+            var chartMarca = new google.visualization.ColumnChart(document.getElementById('graficoMarca'));
+            chartMarca.draw(dataMarca, {
+                title: 'Média de Preço por Marca',
+                legend: { position: 'none' },
+                vAxis: { format: 'R$ #,##0.00' },
+                tooltip: { isHtml: true }
+            });
+        """);
+
+        // =====================================================
+        // 3️⃣ GRÁFICO DE PIZZA - QUANTIDADE POR MARCA
+        // =====================================================
+
+        Map<String, Long> quantidadePorMarca = produtos.stream()
+                .collect(Collectors.groupingBy(
+                        Produto::getMarca,
+                        Collectors.counting()
+                ));
+
+        StringJoiner joinPizza = new StringJoiner(",");
+        for (Map.Entry<String, Long> entry : quantidadePorMarca.entrySet()) {
+            joinPizza.add("['" + entry.getKey() + "', " + entry.getValue() + "]");
+        }
+
+        html.append("var dataPizza = google.visualization.arrayToDataTable([");
+        html.append("['Marca', 'Quantidade'],");
+        html.append(joinPizza.toString());
+        html.append("]);");
+
+        html.append("""
+            var chartPizza = new google.visualization.PieChart(document.getElementById('graficoPizza'));
+            chartPizza.draw(dataPizza, {
+                title: 'Distribuição de Produtos por Marca',
+                legend: { position: 'labeled' },
+                sliceVisibilityThreshold: 0.05,
+                pieSliceText: 'value'
+            });
+        """);
+
+        // =====================================================
+        // 4️⃣ PREÇO MÁXIMO
+        // =====================================================
+
+        gerarGraficoExtremos(html, produtos, true,
+                "graficoMax", "Preço Máximo por Tipo DDR e Categoria", ordemDDR);
+
+        // =====================================================
+        // 5️⃣ PREÇO MÍNIMO
+        // =====================================================
+
+        gerarGraficoExtremos(html, produtos, false,
+                "graficoMin", "Preço Mínimo por Tipo DDR e Categoria", ordemDDR);
+
+        html.append("""
+              }
+            </script>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📊 Relatório de Análise de Memórias RAM</h1>
+                
+                <div class="chart-container">
+                    <div class="chart-title">📋 Estatísticas por Tipo de DDR</div>
+                    <div id="table_stats" style="width:100%;"></div>
+                </div>
+                
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">📈 Média de Preço por Marca</div>
+                        <div id="graficoMarca" style="width:100%; height:400px;"></div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">🥧 Distribuição por Marca</div>
+                        <div id="graficoPizza" style="width:100%; height:400px;"></div>
+                    </div>
+                </div>
+                
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">💰 Preço Máximo por DDR e Categoria</div>
+                        <div id="graficoMax" style="width:100%; height:400px;"></div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">💵 Preço Mínimo por DDR e Categoria</div>
+                        <div id="graficoMin" style="width:100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """);
+
+        FileWriter writer = new FileWriter("relatorio.html");
+        writer.write(html.toString());
+        writer.close();
+    }
+
+    // =====================================================
+    // MÉTODO AUXILIAR
+    // =====================================================
+
+    private static void gerarGraficoExtremos(StringBuilder html,
+                                             List<Produto> produtos,
+                                             boolean max,
+                                             String divId,
+                                             String titulo,
+                                             List<String> ordemDDR) {
+
+        Map<String, Map<String, Double>> mapa = produtos.stream()
+                .filter(p -> p.getTipoDDR() != null && p.getCategoria() != null)
+                .collect(Collectors.groupingBy(
+                        Produto::getTipoDDR,
+                        Collectors.groupingBy(
+                                Produto::getCategoria,
+                                Collectors.collectingAndThen(
+                                        Collectors.mapping(Produto::getPreco, Collectors.toList()),
+                                        lista -> {
+                                            if (lista.isEmpty()) return 0.0;
+                                            return max
+                                                    ? lista.stream().max(Double::compare).orElse(0.0)
+                                                    : lista.stream().min(Double::compare).orElse(0.0);
+                                        }
+                                )
+                        )
+                ));
+
+        String varData = "data_" + divId;
+        String varChart = "chart_" + divId;
+
+        StringJoiner joinExtremos = new StringJoiner(",");
+
+        for (String ddr : ordemDDR) {
+
+            double pc = mapa.getOrDefault(ddr, new HashMap<>())
+                            .getOrDefault("PC", 0.0);
+
+            double note = mapa.getOrDefault(ddr, new HashMap<>())
+                              .getOrDefault("Notebook", 0.0);
+
+            joinExtremos.add(String.format(Locale.US,
+                "['%s', {v: %.2f, f: formatMoney(%.2f)}, {v: %.2f, f: formatMoney(%.2f)}]",
+                ddr, pc, pc, note, note
+            ));
+        }
+
+        html.append("var " + varData + " = google.visualization.arrayToDataTable([");
+        html.append("['TipoDDR', 'PC', 'Notebook'],");
+        html.append(joinExtremos.toString());
+        html.append("]);");
+
+        html.append(
+            "var " + varChart + " = new google.visualization.ColumnChart(document.getElementById('" + divId + "'));" +
+            varChart + ".draw(" + varData + ", {" +
+            "title: '" + titulo + "'," +
+            "legend: { position: 'top' }," +
+            "vAxis: { format: 'R$ #,##0.00' }" +
+            "});"
+        );
+    }
+}

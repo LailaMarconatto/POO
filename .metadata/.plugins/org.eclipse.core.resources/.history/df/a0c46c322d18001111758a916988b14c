@@ -1,0 +1,25 @@
+package testeCharts;
+
+public class Produto {
+
+    private double product_price;
+    private String product_title;
+
+    public Produto(String title, double price) {
+        this.product_title = title;
+        this.product_price = price;
+    }
+
+    public double getPrice() {
+        return product_price;
+    }
+
+    public String getTitle() {
+        return product_title;
+    }
+
+    @Override
+    public String toString() {
+        return product_title + " - R$ " + product_price;
+    }
+}
