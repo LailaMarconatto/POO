@@ -1,0 +1,58 @@
+package listalineares;
+
+public class ListaCircular {
+	private Nodo inicio;
+	private Nodo fim;
+	
+	public ListaCircular(Nodo inicio, Nodo fim) {
+		super();
+		this.inicio = inicio;
+		this.fim = fim;
+	}
+
+	public Nodo getInicio() {
+		return inicio;
+	}
+
+	public void setInicio(Nodo inicio) {
+		this.inicio = inicio;
+	}
+
+	public Nodo getFim() {
+		return fim;
+	}
+
+	public void setFim(Nodo fim) {
+		this.fim = fim;
+	}
+	
+	public boolean vazia() {
+		return inicio == null;
+	}
+	
+	public void inserirInicio(int dado) {
+		Nodo novoNodo = new Nodo(dado);
+		if(vazia()) {
+			inicio = novoNodo;
+			fim = novoNodo;
+			fim.setProx(inicio);
+			return;
+		}
+		novoNodo.setProx(inicio);
+		inicio = novoNodo;
+		fim.setProx(inicio);
+	}
+	
+	public void inserirFinal(int valor) {
+		if(vazia()) {
+			inserirInicio(valor);
+			return;
+		}
+		
+		Nodo novoNodo = new Nodo(valor);
+		fim.setProx(novoNodo);
+		fim = novoNodo;
+		fim.setProx(inicio);
+	}
+	
+}

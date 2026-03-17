@@ -1,0 +1,21 @@
+package listalineares;
+
+public class TesteListaEncadeada {
+
+	public static void main(String[] args) {
+		listaencadeada lista1 = new listaencadeada();
+		
+		lista1.inserirInicio(8);
+		lista1.inserirInicio(2);
+		lista1.inserirInicio(3);
+		
+		lista1.inserirFinal(7);
+		lista1.inserirFinal(9);
+		
+		lista1.removerValor(3);
+		
+		lista1.mostrarLista();
+		
+	}
+
+}

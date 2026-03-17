@@ -1,0 +1,105 @@
+package listalineares;
+
+public class ListaCircular {
+	private Nodo inicio;
+	private Nodo fim;
+	
+	public ListaCircular(Nodo inicio, Nodo fim) {
+		super();
+		this.inicio = inicio;
+		this.fim = fim;
+	}
+
+	public Nodo getInicio() {
+		return inicio;
+	}
+
+	public void setInicio(Nodo inicio) {
+		this.inicio = inicio;
+	}
+
+	public Nodo getFim() {
+		return fim;
+	}
+
+	public void setFim(Nodo fim) {
+		this.fim = fim;
+	}
+	
+	public boolean vazia() {
+		return inicio == null;
+	}
+	
+	public void inserirInicio(int dado) {
+		Nodo novoNodo = new Nodo(dado);
+		if(vazia()) {
+			inicio = novoNodo;
+			fim = novoNodo;
+			fim.setProx(inicio);
+			return;
+		}
+		novoNodo.setProx(inicio);
+		inicio = novoNodo;
+		fim.setProx(inicio);
+	}
+	
+	public void inserirFinal(int valor) {
+		if(vazia()) {
+			inserirInicio(valor);
+			return;
+		}
+		
+		Nodo novoNodo = new Nodo(valor);
+		fim.setProx(novoNodo);
+		fim = novoNodo;
+		fim.setProx(inicio);
+	}
+	
+	public void mostrarLista() {
+		if(vazia()) {
+			System.out.println("Lista vazia");
+			return;
+		}
+		
+		Nodo aux = inicio;
+		do {
+			System.out.println(aux.getDado());
+			aux = aux.getProx();
+		}while (aux!=inicio);
+	}
+	
+	public void removerValoe(int valor) {
+		if(vazia()) return;
+		
+		//caso é o primeiro
+		if(inicio.getDado() == valor) {
+			//unico elemento
+			if(inicio == fim) {
+				inicio = null;
+				fim = null;
+				return;
+			}
+			
+			inicio = inicio.getProx();
+			fim.setProx(inicio);
+			return;
+;		}
+		
+		//caso no meio ou final
+		Nodo aux = inicio;
+		while (aux.getProx() != inicio) {
+			if(aux.getProx().getDado() == valor) {
+				if(aux.getProx() == fim) {
+					//remover do final
+					fim = aux;
+					fim.setProx(inicio);
+				}else {
+					//remover do meio
+					aux.setProx(aux.getProx().getProx());
+				}
+				return;
+			}
+			aux = aux.getProx();
+		}
+	}
+}
