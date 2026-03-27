@@ -1,0 +1,86 @@
+package testeCharts;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.awt.Desktop;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+
+        Scanner sc = new Scanner(System.in);
+        File arquivo = new File("relatorio.html");
+
+        // GERAR PRODUTOS APENAS UMA VEZ
+        List<Produto> produtos = gerarProdutos();
+
+        boolean continuar = true;
+
+        while (continuar) {
+
+            if (arquivo.exists()) {
+                System.out.println("Relatório já existe.");
+                System.out.println("Última modificação: " + new Date(arquivo.lastModified()));
+                System.out.println("Deseja gerar novamente? (s/n)");
+                
+                String resp = sc.nextLine();
+
+                if (!resp.equalsIgnoreCase("s")) {
+                    System.out.println("Abrindo relatório existente...");
+                    Desktop.getDesktop().browse(arquivo.toURI());
+                    break;
+                }
+            }
+
+            // gera HTML novamente
+            HtmlView.gerarHtml(produtos);
+
+            System.out.println("Relatório gerado com sucesso!");
+
+            // abre automaticamente
+            Desktop.getDesktop().browse(arquivo.toURI());
+
+            System.out.println("Deseja gerar novamente? (s/n)");
+            String resp = sc.nextLine();
+
+            if (!resp.equalsIgnoreCase("s")) {
+                continuar = false;
+            }
+        }
+
+        sc.close();
+    }
+
+
+    // MÉTODO PARA GERAR PRODUTOS
+    private static List<Produto> gerarProdutos() {
+
+        List<Produto> produtos = new ArrayList<>();
+        Random random = new Random();
+
+        String[] marcas = {"Kingston","Corsair","Crucial","HyperX","Samsung","ADATA"};
+        String[] ddrs = {"DDR3","DDR4","DDR5"};
+        String[] categorias = {"PC","Notebook"};
+
+        for(int i = 1; i <= 10000; i++){
+
+            String marca = marcas[random.nextInt(marcas.length)];
+            String ddr = ddrs[random.nextInt(ddrs.length)];
+            String categoria = categorias[random.nextInt(categorias.length)];
+
+            double preco = 100 + random.nextDouble() * 900;
+
+            produtos.add(new Produto(
+                    i,
+                    "Memoria " + ddr + " MHz",
+                    preco,
+                    marca,
+                    categoria,
+                    ddr
+            ));
+        }
+
+        return produtos;
+    }
+}

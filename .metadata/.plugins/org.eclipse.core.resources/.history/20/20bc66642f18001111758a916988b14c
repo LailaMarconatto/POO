@@ -1,0 +1,45 @@
+package testeCharts;
+
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        List<Produto> produtos = new ArrayList<>();
+
+        String[] marcas = {"Kingston","Corsair","Crucial","HyperX","Samsung",
+                "ADATA","GSkill","XPG","Patriot","Micron"};
+
+        String[] ddr = {"DDR3","DDR4","DDR5"};
+        String[] categoria = {"PC","Notebook"};
+
+        Random r = new Random();
+
+        for (int i = 1; i <= 100; i++) {
+
+            String marca = marcas[r.nextInt(marcas.length)];
+            String tipo = ddr[r.nextInt(ddr.length)];
+            String cat = categoria[r.nextInt(categoria.length)];
+            int freq = 1600 + r.nextInt(5000);
+            double preco = 100 + r.nextDouble()*2000;
+
+            String titulo = "Memoria RAM " + tipo + " "
+                    + freq + "MHz " + cat;
+
+            produtos.add(new Produto(
+                    "ID"+i,
+                    titulo,
+                    preco,
+                    marca
+            ));
+        }
+
+        Estatistica estat = new Estatistica(produtos);
+        HtmlView view = new HtmlView(estat);
+
+        view.gerarHtml("relatorio.html");
+
+        System.out.println("Relatório gerado!");
+    }
+}

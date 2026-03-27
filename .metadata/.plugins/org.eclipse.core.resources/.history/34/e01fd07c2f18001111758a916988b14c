@@ -1,0 +1,52 @@
+package testeCharts;
+
+import java.util.regex.*;
+
+public class Produto {
+
+    private String id;
+    private String titulo;
+    private double preco;
+    private String marca;
+
+    private Integer frequencia;   // nullable
+    private String categoria;     // Notebook ou PC (nullable)
+    private String tipoDDR;       // DDR3, DDR4, DDR5 (nullable)
+
+    public Produto(String id, String titulo, double preco, String marca) {
+        this.id = id;
+        this.titulo = titulo;
+        this.preco = preco;
+        this.marca = marca;
+
+        extrairInformacoes();
+    }
+
+    private void extrairInformacoes() {
+        String t = titulo.toUpperCase();
+
+        // DDR
+        if (t.contains("DDR5")) tipoDDR = "DDR5";
+        else if (t.contains("DDR4")) tipoDDR = "DDR4";
+        else if (t.contains("DDR3")) tipoDDR = "DDR3";
+
+        // Categoria
+        if (t.contains("NOTE")) categoria = "Notebook";
+        else if (t.contains("PC") || t.contains("DESKTOP")) categoria = "PC";
+
+        // Frequência
+        Pattern p = Pattern.compile("(\\d{4})MHZ");
+        Matcher m = p.matcher(t);
+        if (m.find()) {
+            frequencia = Integer.parseInt(m.group(1));
+        }
+    }
+
+    public String getId() { return id; }
+    public String getTitulo() { return titulo; }
+    public double getPreco() { return preco; }
+    public String getMarca() { return marca; }
+    public Integer getFrequencia() { return frequencia; }
+    public String getCategoria() { return categoria; }
+    public String getTipoDDR() { return tipoDDR; }
+}

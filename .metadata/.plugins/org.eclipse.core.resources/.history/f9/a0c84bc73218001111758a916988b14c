@@ -1,0 +1,190 @@
+package testeCharts;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class HtmlView {
+
+    public static void gerarHtml(List<Produto> produtos) throws IOException {
+
+        StringBuilder html = new StringBuilder();
+
+        html.append("""
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+              google.charts.load('current', {'packages':['corechart']});
+              google.charts.setOnLoadCallback(drawCharts);
+
+              function drawCharts() {
+        """);
+
+        // =====================================================
+        // ORDEM FIXA DOS TIPOS DDR
+        // =====================================================
+
+        List<String> ordemDDR = List.of("DDR3", "DDR4", "DDR5");
+
+        // =====================================================
+        // 1️⃣ GRÁFICO DE LINHA - FREQUÊNCIA MÉDIA POR TIPO DDR
+        // =====================================================
+
+        Map<String, Double> freqPorDDR = produtos.stream()
+                .filter(p -> p.getTipoDDR() != null && p.getFrequencia() != null)
+                .collect(Collectors.groupingBy(
+                        Produto::getTipoDDR,
+                        Collectors.averagingInt(Produto::getFrequencia)
+                ));
+
+        html.append("var dataFreq = google.visualization.arrayToDataTable([['TipoDDR','Frequência Média'],");
+
+        for (String ddr : ordemDDR) {
+            double freq = freqPorDDR.getOrDefault(ddr, 0.0);
+            html.append(String.format("['%s', %.2f],", ddr, freq));
+        }
+
+        html.append("]);");
+
+        html.append("""
+            var chartFreq = new google.visualization.LineChart(document.getElementById('graficoFreq'));
+            chartFreq.draw(dataFreq, {
+                title: 'Frequência média por Tipo DDR',
+                legend: { position: 'none' }
+            });
+        """);
+
+        // =====================================================
+        // 2️⃣ MÉDIA DE PREÇO POR MARCA + TOOLTIP ESTATÍSTICO
+        // =====================================================
+
+        Map<String, List<Double>> precosPorMarca = produtos.stream()
+                .collect(Collectors.groupingBy(
+                        Produto::getMarca,
+                        Collectors.mapping(Produto::getPreco, Collectors.toList())
+                ));
+
+        html.append("var dataMarca = new google.visualization.DataTable();");
+        html.append("dataMarca.addColumn('string','Marca');");
+        html.append("dataMarca.addColumn('number','Média');");
+        html.append("dataMarca.addColumn({type:'string',role:'tooltip'});");
+        html.append("dataMarca.addRows([");
+
+        for (String marca : precosPorMarca.keySet()) {
+
+            List<Double> lista = precosPorMarca.get(marca);
+
+            double media = Estatistica.media(lista);
+            double mediana = Estatistica.mediana(new ArrayList<>(lista));
+            double moda = Estatistica.moda(lista);
+            double variancia = Estatistica.variancia(lista);
+            double desvio = Estatistica.desvioPadrao(lista);
+
+            String tooltip = String.format(
+                    "Média: %.2f\\nMediana: %.2f\\nModa: %.2f\\nDesvio: %.2f\\nVariância: %.2f",
+                    media, mediana, moda, desvio, variancia
+            );
+
+            html.append(String.format(
+                    "['%s', %.2f, '%s'],",
+                    marca, media, tooltip
+            ));
+        }
+
+        html.append("]);");
+
+        html.append("""
+            var chartMarca = new google.visualization.ColumnChart(document.getElementById('graficoMarca'));
+            chartMarca.draw(dataMarca, {
+                title: 'Média de preço por Marca'
+            });
+        """);
+
+        // =====================================================
+        // 3️⃣ PREÇO MÁXIMO POR TIPO DDR E CATEGORIA
+        // =====================================================
+
+        gerarGraficoExtremos(html, produtos, true,
+                "graficoMax", "Preço Máximo por Tipo DDR e Categoria", ordemDDR);
+
+        // =====================================================
+        // 4️⃣ PREÇO MÍNIMO POR TIPO DDR E CATEGORIA
+        // =====================================================
+
+        gerarGraficoExtremos(html, produtos, false,
+                "graficoMin", "Preço Mínimo por Tipo DDR e Categoria", ordemDDR);
+
+        html.append("""
+              }
+            </script>
+        </head>
+        <body>
+            <div id="graficoFreq" style="width:900px;height:500px"></div>
+            <div id="graficoMarca" style="width:900px;height:500px"></div>
+            <div id="graficoMax" style="width:900px;height:500px"></div>
+            <div id="graficoMin" style="width:900px;height:500px"></div>
+        </body>
+        </html>
+        """);
+
+        FileWriter writer = new FileWriter("relatorio.html");
+        writer.write(html.toString());
+        writer.close();
+    }
+
+    // =====================================================
+    // MÉTODO AUXILIAR PARA MÁXIMO / MÍNIMO
+    // =====================================================
+
+    private static void gerarGraficoExtremos(StringBuilder html,
+                                             List<Produto> produtos,
+                                             boolean max,
+                                             String divId,
+                                             String titulo,
+                                             List<String> ordemDDR) {
+
+        Map<String, Map<String, Double>> mapa = produtos.stream()
+                .filter(p -> p.getTipoDDR() != null && p.getCategoria() != null)
+                .collect(Collectors.groupingBy(
+                        Produto::getTipoDDR,
+                        Collectors.groupingBy(
+                                Produto::getCategoria,
+                                Collectors.collectingAndThen(
+                                        Collectors.mapping(Produto::getPreco, Collectors.toList()),
+                                        lista -> {
+                                            if (lista.isEmpty()) return 0.0;
+                                            return max
+                                                    ? lista.stream().max(Double::compare).orElse(0.0)
+                                                    : lista.stream().min(Double::compare).orElse(0.0);
+                                        }
+                                )
+                        )
+                ));
+
+        String varData = "data_" + divId;
+        String varChart = "chart_" + divId;
+
+        html.append("var " + varData + " = google.visualization.arrayToDataTable([['TipoDDR','PC','Notebook'],");
+
+        for (String ddr : ordemDDR) {
+            double pc = mapa.getOrDefault(ddr, new HashMap<>()).getOrDefault("PC", 0.0);
+            double note = mapa.getOrDefault(ddr, new HashMap<>()).getOrDefault("Notebook", 0.0);
+
+            html.append(String.format("['%s', %.2f, %.2f],", ddr, pc, note));
+        }
+
+        html.append("]);");
+
+        html.append(String.format("""
+            var %s = new google.visualization.ColumnChart(document.getElementById('%s'));
+            %s.draw(%s, {
+                title: '%s',
+                legend: { position: 'top' },
+                isStacked: false
+            });
+        """, varChart, divId, varChart, varData, titulo));
+    }
+}

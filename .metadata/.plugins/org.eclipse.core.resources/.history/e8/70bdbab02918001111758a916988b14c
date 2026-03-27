@@ -1,0 +1,31 @@
+package testeCharts;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Dados fictícios simulando retorno do JSON
+        List<Produto> produtos = new ArrayList<>();
+
+        produtos.add(new Produto("Memória RAM 8GB DDR4", 189.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4", 329.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR3", 149.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4", 699.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR5", 489.90));
+
+        Estatistica estatistica = new Estatistica(produtos);
+
+        System.out.println("Média: " + estatistica.calcularMedia());
+        System.out.println("Mediana: " + estatistica.calcularMediana());
+        System.out.println("Desvio Padrão: " + estatistica.calcularDesvioPadrao());
+
+        List<Estatistica> listaEst = new ArrayList<>();
+        listaEst.add(estatistica);
+
+        HtmlView view = new HtmlView(listaEst);
+        view.exportarHtml("grafico_memorias.html");
+    }
+}

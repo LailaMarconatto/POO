@@ -1,0 +1,110 @@
+package testeCharts;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Dados fictícios simulando retorno do JSON
+        List<Produto> produtos = new ArrayList<>();
+
+        produtos.add(new Produto("Memória RAM 4GB DDR3 1333MHz", 119.90));
+        produtos.add(new Produto("Memória RAM 4GB DDR3 1600MHz", 129.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR3 1600MHz", 169.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR3 1866MHz", 179.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR3 1866MHz", 289.90));
+
+        produtos.add(new Produto("Memória RAM 4GB DDR4 2400MHz", 139.90));
+        produtos.add(new Produto("Memória RAM 4GB DDR4 2666MHz", 149.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR4 2666MHz", 199.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR4 3000MHz", 209.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR4 3200MHz", 219.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 2666MHz", 319.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 3000MHz", 339.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 3200MHz", 359.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 3200MHz", 729.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 3600MHz", 759.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR5 4800MHz", 399.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR5 5200MHz", 429.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR5 4800MHz", 499.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR5 5200MHz", 529.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR5 5200MHz", 949.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR5 5600MHz", 999.90));
+        produtos.add(new Produto("Memória RAM 64GB DDR5 5600MHz", 1899.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR4 Gamer RGB 3200MHz", 249.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 Gamer RGB 3200MHz", 389.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 Gamer RGB 3600MHz", 819.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR5 Gamer RGB 5600MHz", 579.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR5 Gamer RGB 6000MHz", 1099.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR4 Notebook 2666MHz", 189.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 Notebook 2666MHz", 329.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR4 Notebook 3200MHz", 209.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 Notebook 3200MHz", 349.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 Notebook 3200MHz", 769.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR5 Notebook 4800MHz", 409.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR5 Notebook 4800MHz", 519.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR5 Notebook 5200MHz", 969.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR4 3000MHz CL16", 214.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR4 3200MHz CL18", 224.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 3200MHz CL16", 369.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 3600MHz CL18", 399.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 3600MHz CL18", 849.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR5 5600MHz CL36", 449.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR5 5600MHz CL36", 589.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR5 6000MHz CL40", 1129.90));
+
+        produtos.add(new Produto("Memória RAM 4GB DDR4 2400MHz", 134.90));
+        produtos.add(new Produto("Memória RAM 4GB DDR4 2666MHz Econômica", 124.90));
+        produtos.add(new Produto("Memória RAM 8GB DDR4 Econômica 2666MHz", 179.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 Econômica 2666MHz", 309.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 Econômica 3200MHz", 699.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR3 Recondicionada", 139.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR3 Recondicionada", 249.90));
+
+        produtos.add(new Produto("Memória RAM 64GB DDR4 3200MHz", 1499.90));
+        produtos.add(new Produto("Memória RAM 64GB DDR4 3600MHz", 1599.90));
+        produtos.add(new Produto("Memória RAM 64GB DDR5 6000MHz", 2199.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR4 2933MHz", 204.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 2933MHz", 344.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 2933MHz", 739.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR5 6000MHz", 459.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR5 6000MHz", 609.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR5 6400MHz", 1199.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR4 Low Profile 2666MHz", 189.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 Low Profile 3200MHz", 359.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 Low Profile 3600MHz", 799.90));
+
+        produtos.add(new Produto("Memória RAM 8GB DDR4 Servidor ECC", 259.90));
+        produtos.add(new Produto("Memória RAM 16GB DDR4 Servidor ECC", 479.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR4 Servidor ECC", 899.90));
+        produtos.add(new Produto("Memória RAM 64GB DDR4 Servidor ECC", 1799.90));
+
+        produtos.add(new Produto("Memória RAM 16GB DDR5 Servidor ECC", 699.90));
+        produtos.add(new Produto("Memória RAM 32GB DDR5 Servidor ECC", 1299.90));
+        produtos.add(new Produto("Memória RAM 64GB DDR5 Servidor ECC", 2399.90));
+
+        Estatistica estatistica = new Estatistica(produtos);
+
+        System.out.println("Média: " + estatistica.calcularMedia());
+        System.out.println("Mediana: " + estatistica.calcularMediana());
+        System.out.println("Desvio Padrão: " + estatistica.calcularDesvioPadrao());
+
+        List<Estatistica> listaEst = new ArrayList<>();
+        listaEst.add(estatistica);
+
+        HtmlView view = new HtmlView(listaEst);
+        view.exportarHtml("grafico_memorias.html");
+    }
+}
